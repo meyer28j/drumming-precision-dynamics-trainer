@@ -8,11 +8,25 @@ const static uint16_t ROW_1 = 0x200;
 const static uint16_t ROW_2 = 0x300;
 const static uint16_t ROW_3 = 0x400;
 const static uint16_t ROW_4 = 0x500;
+const static uint16_t ROW_5 = 0x600;
+const static uint16_t ROW_6 = 0x700;
+const static uint16_t ROW_7 = 0x800;
 const static uint16_t ADDR_DECODE = 0x900;
 const static uint16_t ADDR_INTENSITY = 0xA00;
 const static uint16_t ADDR_SCAN = 0xB00;
 const static uint16_t ADDR_SHUTDOWN = 0xC00;
 const static uint16_t ADDR_TEST = 0xF00;
+
+const static uint16_t bpm_pattern = 0x18; // 2 center LEDs --> 0b0001'1000
+const static uint16_t bpm_rows[2] = { ROW_3, ROW_4 }; // center two rows
+
+const static uint16_t early_0 = 0x4; // 0b0000'0100
+const static uint16_t early_1 = 0x6; // 0b0000'0110
+const static uint16_t early_2 = 0x7; // 0b0000'0111
+const static uint16_t late_0 = 0x20; // 0b0010'0000
+const static uint16_t late_1 = 0x60; // 0b0110'0000
+const static uint16_t late_2 = 0xE0; // 0b1110'0000
+
 
 void max_init(void);
 void clear(uint16_t matrix_num);

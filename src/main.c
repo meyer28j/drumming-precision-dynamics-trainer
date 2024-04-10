@@ -14,7 +14,7 @@ void EXTI0_IRQHandler(void) {
 	EXTI->PR |= EXTI_PR_PR0; // clear pending interrupt bit
 	
 	bpm += 1;
-	mspb = bpm * 1000 / 60;
+	mspb = 60000 / bpm;
 	LD2_TOGGLE();
 	return;
 }
@@ -25,7 +25,7 @@ void EXTI1_IRQHandler(void) {
 	EXTI->PR |= EXTI_PR_PR1; // clear pending interrupt bit
 	
 	bpm -= 1;
-	mspb = bpm * 1000 / 60;
+	mspb = 60000 / bpm;
 	LD2_TOGGLE();
 	return;
 }
@@ -66,7 +66,7 @@ void initialize(void) {
 	
 	bpm = 60;
 	mspb = 600;	
-
+	
 	return;
 }
 
@@ -79,28 +79,51 @@ int main(void)
 	max_init();  		// LED matrix
 	
 	initialize();
-	
+
 	while (1) {
 		
 		//bin_count(mspb / 2);
 		//test_all(mspb / 2);
-
 		
-		// output BPM in center 4 LEDs of each matrix
-		uint16_t bpm_pattern = 0x18; // 0b00011000
-		uint16_t bpm_rows[2] = { ROW_3, ROW_4 }; // center two rows
-		
-		
+		// output BPM in center 4 LEDs of each matrix		
 		for (uint16_t m = 0; m < MATRIX_COUNT; m++) {
+		// clear matrix of previous error positions
+			clear(m);
+			
 			for (uint16_t row = 0; row < 2; row++) {
 				update(m, bpm_rows[row], bpm_pattern); // update to show pattern
 			}
-			delay_ms(mspb);
+			// modulate brightness from max to min over beat duration
+			for (int brightness = 0xF; brightness >= 0; brightness--) {
+				update(m, ADDR_INTENSITY, brightness);
+				delay_ms(mspb / 16); // 16 stages of brightness: 0x0 -> 0xF
+			}
 			for (uint16_t row = 0; row < 2; row++) {
 				update(m, bpm_rows[row], NO_OP); // disable center pattern
 			}
+			////////////////////
+			// TODO: implement error positioning according to input
+			////////////////////
+			
+			// reset brightness to maximum for error representation
+			update(m, ADDR_INTENSITY, 0xF);
+			
+			// implement input simulations
+			
+			if (m == 1) { // simulate 'too quiet' in matrix 2
+				update(1, ROW_2, bpm_pattern);
+			} else if (m == 2) { // simulate 'too early' in matrix 3: two levels
+				update(2, ROW_3, early_1);
+				update(2, ROW_4, early_1);
+			} else if (m == 3) { // simulate 'too loud' 3 levels and 'too late' 1 level in matrix 4
+				update(3, ROW_5, bpm_pattern); // too loud level 1
+				update(3, ROW_6, bpm_pattern); // too loud level 2
+				update(3, ROW_7, bpm_pattern); // too loud level 3
+				update(3, ROW_3, late_0);
+				update(3, ROW_4, late_0);
+			}
 		}
-
 		//clear_all();
 	}
 }
+
