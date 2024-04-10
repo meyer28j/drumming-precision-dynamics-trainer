@@ -9,11 +9,20 @@ void tim3_init(void) {
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 	TIM3->CR1 = 0;
 	TIM3->PSC = 7200 - 1; // 72MHz / 7200 = 10kHz
-	TIM3->ARR = 1000 - 1; // with 10kHz prescaler, generates interrupt every 100ms
-	TIM3->CR1 |= TIM_CR1_CEN;
-	
+	TIM3->ARR = 0xA000 - 1; // with 10kHz prescaler, generates interrupt every 100ms
+	TIM3->CR1 |= TIM_CR1_OPM; // stop when event fires
+	//TIM3->CR1 &= ~TIM_CR1_DIR; // count up
+	//TIM3->CR1 |= TIM_CR1_URS; // enable as interrupt source
+	TIM3->DIER |= TIM_DIER_UIE; // enable update interrupt
 	NVIC->ISER[0] |= NVIC_ISER_SETENA_29; // enable TIM3 interrupt in NVIC
-	while(!(TIM3->SR & TIM_SR_UIF)); // wait for time to generate first update event
+	TIM3->SR &= ~TIM_SR_UIF; // clear update interrupt flag
+}
+
+
+void start_calibration_timer(void) {
+	TIM3->CNT = 0; // reset timer
+	TIM3->CR1 |= TIM_CR1_CEN; // start timer
+	return;
 }
 
 

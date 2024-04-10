@@ -11,30 +11,20 @@ uint16_t mspb = 1000; // milliseconds per beat; used with delay_ms()
 
 void EXTI9_5_IRQHandler(void) {
 	
-	//delay_ms(100); // simple handle for switch bounce
-
-	// both buttons are pressed: enter calibration mode
-	if ((EXTI->PR & EXTI_PR_PR8) && (EXTI->PR & EXTI_PR_PR9)) {
-		delay_ms(1000); // make sure both buttons are held for a while
-	}
-	if ((EXTI->PR & EXTI_PR_PR8) && (EXTI->PR & EXTI_PR_PR9)) { // check again
-		/////////////////////////
-		// TODO: implement calibration mode
-		/////////////////////////
-		test_all(100); // temporary test for demo purposes
-		EXTI->PR = EXTI_PR_PR8;
-		EXTI->PR = EXTI_PR_PR9;
-		return;
-	}
+	start_calibration_timer();
 		
-	else if (EXTI->PR & EXTI_PR_PR8) { // interrupt caused by PA8
-		bpm -= 4;
-		mspb = 60000 / bpm;
+	if (EXTI->PR & EXTI_PR_PR8) { // interrupt caused by PA8
+		if (bpm > 10) { // lower cap on BPM
+			bpm -= 4;
+			mspb = 60000 / bpm;
+		}
 		EXTI->PR |= EXTI_PR_PR8; // clear pending interrupt bit	
 	} 
 	else if (EXTI->PR & EXTI_PR_PR9) { // interrupt cause by PA9
-		bpm += 4;
-		mspb = 60000 / bpm;
+		if (bpm < 300) { // upper cap on BPM
+			bpm += 4;
+			mspb = 60000 / bpm;
+		}
 		EXTI->PR |= EXTI_PR_PR9; // Clear the pending bit for PA9
 	}
 	return;
@@ -43,8 +33,20 @@ void EXTI9_5_IRQHandler(void) {
 
 void TIM3_IRQHandler(void) {
 	// handle event that both buttons are held down for calibration mode
-	
-	test_all(100);
+	if (TIM3->SR & TIM_SR_UIF) {
+		TIM3->SR &= ~TIM_SR_UIF; // clear update interrupt flag
+		
+    if (!(GPIOA->IDR & GPIO_IDR_IDR8) && !(GPIOA->IDR & GPIO_IDR_IDR9)) {
+		// both buttons are still pressed after debounce period
+		EXTI->PR = EXTI_PR_PR8;
+		EXTI->PR = EXTI_PR_PR9;
+
+		test_all(150); // temporary test for demo purposes
+		/////////////////////////
+		// TODO: implement calibration mode
+		/////////////////////////
+		}
+	}
 	return;
 }
 

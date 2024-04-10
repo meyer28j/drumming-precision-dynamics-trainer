@@ -37,34 +37,21 @@ void clear_all(void) {
 
 
 void test_all(uint16_t speed) {
-	// TEST all matrices on, then all off
-	for (int i = 0; i < MATRIX_COUNT; i++) {
-		spi_start();
-		spi_send(0xF01); // enable display test
-		spi_stop();
-		delay_ms(speed);
-	}
-	for (int i = 0; i < MATRIX_COUNT; i++) {
-		spi_start();
-		spi_send(0xF00); // enable display test
-		spi_stop();
-		delay_ms(speed);
-	}
 	
 	// enable and disable each matrix one at a time
 	for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
 		update(matrix_num, ADDR_TEST, 1);
-		delay_ms(speed);
+		delay_ms(speed * 2);
 		update(matrix_num, ADDR_TEST, 0);
-		delay_ms(speed);
+		delay_ms(speed * 2);
 	}
 	
 	// do the same as above except backwards
 	for (uint16_t matrix_num = MATRIX_COUNT; matrix_num > 0; matrix_num--) {
 		update(matrix_num - 1, ADDR_TEST, 1);
-		delay_ms(speed);
+		delay_ms(speed * 2);
 		update(matrix_num - 1, ADDR_TEST, 0);
-		delay_ms(speed);
+		delay_ms(speed * 2);
 	}
 		
 	// sequentially activate all rows in all matrices
