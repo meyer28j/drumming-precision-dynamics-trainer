@@ -7,10 +7,10 @@ void max_init(void) {
 
 	for (uint16_t m = 0; m < MATRIX_COUNT; m++) {
 		update(m, ADDR_TEST, NO_OP); // disable display test for all matrices
-		update(m, ADDR_SHUTDOWN, 0xC01); // set shutdown register for normal operation
-		update(m, ADDR_DECODE, 0x900); // set decode mode to normal operation
-		update(m, ADDR_INTENSITY, 0xA04); // set intensity to middle
-		update(m, ADDR_SCAN, 0xB07); // set scan limit to include all LEDs
+		update(m, ADDR_SHUTDOWN, 0x1); // set shutdown register for normal operation
+		update(m, ADDR_DECODE, NO_OP); // set decode mode to normal operation
+		update(m, ADDR_INTENSITY, 0x4); // set intensity to middle
+		update(m, ADDR_SCAN, 0x7); // set scan limit to include all LEDs
 	}
 	clear_all();
 

@@ -83,7 +83,7 @@ int main(void)
 	while (1) {
 		
 		//bin_count(mspb / 2);
-		test_all(mspb / 2);
+		//test_all(mspb / 2);
 
 		
 		// output BPM in center 4 LEDs of each matrix
@@ -100,7 +100,7 @@ int main(void)
 				update(m, bpm_rows[row], NO_OP); // disable center pattern
 			}
 		}
-		
+
 		//clear_all();
 	}
 }
