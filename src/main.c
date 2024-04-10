@@ -84,34 +84,20 @@ int main(void)
 		
 		//bin_count(mspb / 2);
 		//test_all(mspb / 2);
+
 		
-		// turn on all matrices
+		// output BPM in center 4 LEDs of each matrix
+		uint16_t bpm_pattern = 0x18; // 0b00011000
+		uint16_t bpm_rows[2] = { 0x400, 0x500 }; // center two rows
+		
+		
 		for (uint16_t m = 0; m < MATRIX_COUNT; m++) {
-			update(m, ADDR_TEST, 0xFF); 
-		}
-		delay_ms(mspb);
-		// turn off matrices 2 and 4
-		update(1, ADDR_TEST, NO_OP);
-		update(3, ADDR_TEST, NO_OP);
-		delay_ms(mspb);
-		// turn off matrices 1 and 3
-		update(0, ADDR_TEST, NO_OP);
-		update(2, ADDR_TEST, NO_OP);
-		delay_ms(mspb);
-		
-		// sequentially activate all rows in all matrices
-		for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
-			for (uint16_t row = 0x100; row <= 0x800; row += 0x100) { // increment through row addresses
-				update(matrix_num, row, 0xFF); // 0xFF == all on
-				delay_ms(mspb / 8);
+			for (uint16_t row = 0; row < 2; row++) {
+				update(m, bpm_rows[row], bpm_pattern); // update to show pattern
 			}
-		}
-		
-		// sequentially deactivate all rows in all matrices
-		for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
-			for (uint16_t row = 0x100; row <= 0x800; row += 0x100) { // increment through row addresses
-				update(matrix_num, row, NO_OP);
-				delay_ms(mspb / 8);
+			delay_ms(mspb);
+			for (uint16_t row = 0; row < 2; row++) {
+				update(m, bpm_rows[row], NO_OP); // disable center pattern
 			}
 		}
 		

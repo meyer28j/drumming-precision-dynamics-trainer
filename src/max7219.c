@@ -59,6 +59,23 @@ void test_all(uint16_t speed) {
 		update(matrix_num - 1, ADDR_TEST, 0);
 		delay_ms(speed);
 	}
+		
+	// sequentially activate all rows in all matrices
+	for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
+		for (uint16_t row = 0x100; row <= 0x800; row += 0x100) { // increment through row addresses
+			update(matrix_num, row, 0xFF); // 0xFF == all on
+			delay_ms(speed / 8);
+		}
+	}
+	
+	// sequentially deactivate all rows in all matrices
+	for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
+		for (uint16_t row = 0x100; row <= 0x800; row += 0x100) { // increment through row addresses
+			update(matrix_num, row, NO_OP);
+			delay_ms(speed / 8);
+		}
+	}
+	
 	return;
 }
 
