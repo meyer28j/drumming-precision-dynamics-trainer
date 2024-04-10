@@ -82,43 +82,37 @@ int main(void)
 	
 	while (1) {
 		
-		// TEST all matrices on, then all off
-		for (int i = 0; i < MATRIX_COUNT; i++) {
-			spi_start();
-			spi_send(0xF01); // enable display test
-			spi_stop();
-			delay_ms(mspb / 4);
-		}
-		for (int i = 0; i < MATRIX_COUNT; i++) {
-			spi_start();
-			spi_send(0xF00); // enable display test
-			spi_stop();
-			delay_ms(mspb / 4);
-		}
+		//bin_count(mspb / 2);
+		//test_all(mspb / 2);
 		
-		bin_count();
+		// turn on all matrices
+		for (uint16_t m = 0; m < MATRIX_COUNT; m++) {
+			update(m, ADDR_TEST, 0xFF); 
+		}
+		delay_ms(mspb);
+		// turn off matrices 2 and 4
+		update(1, ADDR_TEST, NO_OP);
+		update(3, ADDR_TEST, NO_OP);
+		delay_ms(mspb);
+		// turn off matrices 1 and 3
+		update(0, ADDR_TEST, NO_OP);
+		update(2, ADDR_TEST, NO_OP);
+		delay_ms(mspb);
 		
-		// enable and disable each matrix one at a time
+		// sequentially activate all rows in all matrices
 		for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
-			update(matrix_num, ADDR_TEST, 1);
-			delay_ms(mspb / 2);
-			update(matrix_num, ADDR_TEST, 0);
-			delay_ms(mspb / 2);
+			for (uint16_t row = 0x100; row <= 0x800; row += 0x100) { // increment through row addresses
+				update(matrix_num, row, 0xFF); // 0xFF == all on
+				delay_ms(mspb / 8);
+			}
 		}
 		
-		// do the same as above except backwards
-		for (uint16_t matrix_num = MATRIX_COUNT; matrix_num > 0; matrix_num--) {
-			update(matrix_num - 1, ADDR_TEST, 1);
-			delay_ms(mspb / 2);
-			update(matrix_num - 1, ADDR_TEST, 0);
-			delay_ms(mspb / 2);
-		}
-		
-
-		// sequentially activate bottom row LEDs
-		for (uint16_t matrix = 1; matrix <= MATRIX_COUNT; matrix++) {
-			spi_send_receive((matrix << 8) | 0xFF);
-			delay_ms(mspb);
+		// sequentially deactivate all rows in all matrices
+		for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
+			for (uint16_t row = 0x100; row <= 0x800; row += 0x100) { // increment through row addresses
+				update(matrix_num, row, NO_OP);
+				delay_ms(mspb / 8);
+			}
 		}
 		
 		clear_all();

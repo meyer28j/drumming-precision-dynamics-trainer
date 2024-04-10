@@ -14,8 +14,8 @@ const static uint16_t ADDR_TEST = 0xF00;
 
 void max_init(void);
 void clear_all(void);
-void test_all(void);
+void test_all(uint16_t speed);
 void update(uint16_t matrix_num, uint16_t address, uint16_t data);
 void update_gpt(uint16_t matrix_num, uint16_t address, uint16_t data);
-void bin_count(void);
+void bin_count(uint16_t speed);
 

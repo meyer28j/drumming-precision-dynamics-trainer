@@ -4,32 +4,16 @@
 #include "timer.h"
 
 void max_init(void) {
-	
-	
-	for (int i = 0; i < MATRIX_COUNT; i++) {
-		spi_send_receive(0xF00); // disable display test for all matrices
-		spi_send_receive(0xC01); // set shutdown register for normal operation
-		spi_send_receive(0x900); // set decode mode to normal operation
-		spi_send_receive(0xA04); // set intensity to middle
-		//spi_send_receive(0xB07); // set scan limit to include all LEDs
-		delay_ms(100);
+
+	for (uint16_t m = 0; m < MATRIX_COUNT; m++) {
+		update(m, ADDR_TEST, NO_OP); // disable display test for all matrices
+		update(m, ADDR_SHUTDOWN, 0xC01); // set shutdown register for normal operation
+		update(m, ADDR_DECODE, 0x900); // set decode mode to normal operation
+		update(m, ADDR_INTENSITY, 0xA04); // set intensity to middle
+		update(m, ADDR_SCAN, 0xB07); // set scan limit to include all LEDs
 	}
-	
-	// clear all rows in all matrices
-	for (int matrix = 0; matrix < MATRIX_COUNT; matrix++) {
-		for (int digit = 1; digit <= 8; digit++) {
-			spi_send_receive((digit << 8) | NO_OP);
-		}
-	}
-	
-	/*
-	spi_start();
-	for (uint16_t i = 0; i < MATRIX_COUNT; i++) {
-		spi_send(0xF00); // disable test mode
-	}
-	spi_stop();
-	*/
-		
+	clear_all();
+
 	return;
 }
 
@@ -45,24 +29,45 @@ void clear_all(void) {
 }
 
 
-void test_all(void) {
-		spi_send_receive(0xF01); // enable display test
-		delay_ms(200);
-		spi_send_receive(0xF00); // disable display test
-		delay_ms(200);
-		spi_send_receive(0); // send no-ops
-		delay_ms(200);
-		spi_send_receive(0); // send no-ops
-		delay_ms(200);
+void test_all(uint16_t speed) {
+	// TEST all matrices on, then all off
+	for (int i = 0; i < MATRIX_COUNT; i++) {
+		spi_start();
+		spi_send(0xF01); // enable display test
+		spi_stop();
+		delay_ms(speed);
+	}
+	for (int i = 0; i < MATRIX_COUNT; i++) {
+		spi_start();
+		spi_send(0xF00); // enable display test
+		spi_stop();
+		delay_ms(speed);
+	}
+	
+	// enable and disable each matrix one at a time
+	for (uint16_t matrix_num = 0; matrix_num < MATRIX_COUNT; matrix_num++) {
+		update(matrix_num, ADDR_TEST, 1);
+		delay_ms(speed);
+		update(matrix_num, ADDR_TEST, 0);
+		delay_ms(speed);
+	}
+	
+	// do the same as above except backwards
+	for (uint16_t matrix_num = MATRIX_COUNT; matrix_num > 0; matrix_num--) {
+		update(matrix_num - 1, ADDR_TEST, 1);
+		delay_ms(speed);
+		update(matrix_num - 1, ADDR_TEST, 0);
+		delay_ms(speed);
+	}
+	return;
 }
 
-	/* For example, if four MAX7219s are cascaded, then to 
-	write to the fourth chip, sent the
-  desired 16-bit word, followed by three no-op codes (hex
-  0xX0XX, see Table 2). When LOAD/CS goes high, data is
-  latched in all devices. The first three chips receive no-op
-	commands, and the fourth receives the intended data.
-	*/
+/* For example, if four MAX7219s are cascaded, then to 
+write to the fourth chip, sent the
+desired 16-bit word, followed by three no-op codes (hex
+0xX0XX, see Table 2). When LOAD/CS goes high, data is
+latched in all devices. The first three chips receive no-op
+commands, and the fourth receives the intended data. */
 
 // updates a single matrix
 // address: 0xX00 - bytes 0 and 1 must be set to 0
@@ -89,9 +94,8 @@ void update(uint16_t matrix_num, uint16_t address, uint16_t data) {
 }
 
 
-void bin_count(void) {
+void bin_count(uint16_t speed) {
 	uint16_t test_address = 0xF00;
-	uint16_t speed = 200;
 	
 	update(0, test_address, 1); // 1 on
 	delay_ms(speed);
