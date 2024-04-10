@@ -9,13 +9,18 @@ void max_init(void) {
 	for (int i = 0; i < MATRIX_COUNT; i++) {
 		spi_send_receive(0xF00); // disable display test for all matrices
 		spi_send_receive(0xC01); // set shutdown register for normal operation
-		//spi_send_receive(0x900); // set decode mode to normal operation
+		spi_send_receive(0x900); // set decode mode to normal operation
 		spi_send_receive(0xA04); // set intensity to middle
 		//spi_send_receive(0xB07); // set scan limit to include all LEDs
-		delay_ms(1000);
+		delay_ms(100);
 	}
 	
-	
+	// clear all rows in all matrices
+	for (int matrix = 0; matrix < MATRIX_COUNT; matrix++) {
+		for (int digit = 1; digit <= 8; digit++) {
+			spi_send_receive((digit << 8) | NO_OP);
+		}
+	}
 	
 	/*
 	spi_start();
@@ -25,6 +30,17 @@ void max_init(void) {
 	spi_stop();
 	*/
 		
+	return;
+}
+
+
+void clear_all(void) {
+	// clear all rows in all matrices
+	for (int matrix = 0; matrix < MATRIX_COUNT; matrix++) {
+		for (int digit = 1; digit <= 8; digit++) {
+			spi_send_receive((digit << 8) | NO_OP);
+		}
+	}
 	return;
 }
 
@@ -54,15 +70,19 @@ void test_all(void) {
 // matrix_num: 0x0 - 0x3 - represents which matrix to address
 void update(uint16_t matrix_num, uint16_t address, uint16_t data) {
 	spi_start();
-	// send no-ops prior to desired matrix update
-	for (uint16_t i = matrix_num; i < MATRIX_COUNT; i++) {
-		spi_send(0);
+	
+	// send no-ops to matrices further than desired matrix
+	for (uint16_t i = matrix_num; i < MATRIX_COUNT; i++){
+		spi_send(NO_OP);
+	}
+
+	spi_send(address | data);
+
+	// send no-ops to push data to desired matrix
+	for (uint16_t i = 0; i < matrix_num; i++) {
+		spi_send(NO_OP);
 	}
 	
-	spi_send(address + data);
-	for (uint16_t i = 0; i < matrix_num; i++) {
-		spi_send(0);
-	}
 	spi_stop();
 	
 	return;
@@ -71,30 +91,31 @@ void update(uint16_t matrix_num, uint16_t address, uint16_t data) {
 
 void bin_count(void) {
 	uint16_t test_address = 0xF00;
+	uint16_t speed = 200;
 	
 	update(0, test_address, 1); // 1 on
-	delay_ms(500);
+	delay_ms(speed);
 	update(1, test_address, 1); // 2 on
 	update(0, test_address, 0); // 1 off
-	delay_ms(500);
+	delay_ms(speed);
 	update(0, test_address, 1); // 1 on
-	delay_ms(500);
+	delay_ms(speed);
 	update(2, test_address, 1); // 3 on
 	update(1, test_address, 0); // 2 off
 	update(0, test_address, 0); // 1 off
-	delay_ms(500);
+	delay_ms(speed);
 	
 	update(0, test_address, 1); // 1 on
-	delay_ms(500);
+	delay_ms(speed);
 	update(1, test_address, 1); // 2 on
 	update(0, test_address, 0); // 1 off
-	delay_ms(500);
+	delay_ms(speed);
 	update(0, test_address, 1); // 1 on
-	delay_ms(500);
+	delay_ms(speed);
 	
 	update(2, test_address, 0); // 3 off
 	update(1, test_address, 0); // 2 off
 	update(0, test_address, 0); // 1 off
-	delay_ms(500);
+	delay_ms(speed);
 }
 

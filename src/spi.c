@@ -47,14 +47,14 @@ void spi2_init(void) {
 
 
 void spi_start(void) {
-	// set PB9 (CS) to go LOW
+	// reset PB9 (CS) LOW
 	GPIOB->BSRR |= GPIO_BSRR_BR9;
 	return;
 }
 
 
 void spi_stop(void) {
-		// make CS line (PB9) go HIGH
+		// set PB9 (CS) HIGH
 	GPIOB->BSRR |= GPIO_BSRR_BS9;
 	return;
 }
