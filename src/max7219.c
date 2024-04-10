@@ -18,13 +18,20 @@ void max_init(void) {
 }
 
 
+void clear(uint16_t matrix_num) {
+	// clear all rows for a given matrix
+	for (uint16_t row = 0x100; row <= 0x800; row += 0x100) {
+			update(matrix_num, row, NO_OP);
+	}
+}
+
+
 void clear_all(void) {
 	// clear all rows in all matrices
-	for (int matrix = 0; matrix < MATRIX_COUNT; matrix++) {
-		for (int digit = 1; digit <= 8; digit++) {
-			spi_send_receive((digit << 8) | NO_OP);
-		}
+	for (uint16_t matrix = 0; matrix < MATRIX_COUNT; matrix++) {
+		clear(matrix);
 	}
+	
 	return;
 }
 

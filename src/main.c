@@ -83,12 +83,12 @@ int main(void)
 	while (1) {
 		
 		//bin_count(mspb / 2);
-		//test_all(mspb / 2);
+		test_all(mspb / 2);
 
 		
 		// output BPM in center 4 LEDs of each matrix
 		uint16_t bpm_pattern = 0x18; // 0b00011000
-		uint16_t bpm_rows[2] = { 0x400, 0x500 }; // center two rows
+		uint16_t bpm_rows[2] = { ROW_3, ROW_4 }; // center two rows
 		
 		
 		for (uint16_t m = 0; m < MATRIX_COUNT; m++) {
@@ -101,6 +101,6 @@ int main(void)
 			}
 		}
 		
-		clear_all();
+		//clear_all();
 	}
 }
