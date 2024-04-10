@@ -52,12 +52,8 @@ void TIM3_IRQHandler(void) {
 
 
 void initialize(void) {
-	// enable clock for ports A, B, C
-	RCC->APB2ENR |= (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
-	RCC->APB2ENR |= (RCC_APB2ENR_AFIOEN);	// enable clock for AFIO
-
-	enable_GPIO_output(GPIOA, 5);	// enable on-board LED
-	enable_GPIO_input(GPIOC, 13);	// enable on-board button
+	// enable clock for AFIO and ports A and B
+	RCC->APB2ENR |= (RCC_APB2ENR_AFIOEN | RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN);
 
 	// enable interrupts on port A for
 	// breadboard buttons to change BPM
@@ -69,7 +65,7 @@ void initialize(void) {
 	NVIC->ISER[0] |= NVIC_ISER_SETENA_23; // unmask EXTI9_5 as an interrupt source in the NVIC
 	
 	bpm = 60;
-	mspb = 600;	
+	mspb = 1000;	
 	
 	return;
 }
@@ -78,6 +74,7 @@ void initialize(void) {
 int main(void)
 {
 	SystemInit(); 	// 72 MHz system clock
+	// LD2_init();	// on-board LED for test purposes
 	tim2_init(); 		// Delay function timer
 	tim3_init();		// calibration input delay timer
 	spi2_init(); 		// Serial peripheral interface
@@ -109,20 +106,6 @@ int main(void)
 			
 			// reset brightness to maximum for error representation
 			update(m, ADDR_INTENSITY, 0xF);
-			
-			// implement input simulations
-			if (m == 1) { // simulate 'too quiet' in matrix 2
-				update(1, ROW_2, bpm_pattern);
-			} else if (m == 2) { // simulate 'too early' in matrix 3: two levels
-				update(2, ROW_3, early_1);
-				update(2, ROW_4, early_1);
-			} else if (m == 3) { // simulate 'too loud' 3 levels and 'too late' 1 level in matrix 4
-				update(3, ROW_5, bpm_pattern); // too loud level 1
-				update(3, ROW_6, bpm_pattern); // too loud level 2
-				update(3, ROW_7, bpm_pattern); // too loud level 3
-				update(3, ROW_3, late_0);
-				update(3, ROW_4, late_0);
-			}
 		}
 	}
 }

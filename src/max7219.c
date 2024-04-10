@@ -105,32 +105,33 @@ void update(uint16_t matrix_num, uint16_t address, uint16_t data) {
 }
 
 
+// test function for 
 void bin_count(uint16_t speed) {
-	uint16_t test_address = 0xF00;
+	uint16_t ADDR_TEST = 0xF00;
 	
-	update(0, test_address, 1); // 1 on
+	update(0, ADDR_TEST, 1); // 1 on
 	delay_ms(speed);
-	update(1, test_address, 1); // 2 on
-	update(0, test_address, 0); // 1 off
+	update(1, ADDR_TEST, 1); // 2 on
+	update(0, ADDR_TEST, 0); // 1 off
 	delay_ms(speed);
-	update(0, test_address, 1); // 1 on
+	update(0, ADDR_TEST, 1); // 1 on
 	delay_ms(speed);
-	update(2, test_address, 1); // 3 on
-	update(1, test_address, 0); // 2 off
-	update(0, test_address, 0); // 1 off
-	delay_ms(speed);
-	
-	update(0, test_address, 1); // 1 on
-	delay_ms(speed);
-	update(1, test_address, 1); // 2 on
-	update(0, test_address, 0); // 1 off
-	delay_ms(speed);
-	update(0, test_address, 1); // 1 on
+	update(2, ADDR_TEST, 1); // 3 on
+	update(1, ADDR_TEST, 0); // 2 off
+	update(0, ADDR_TEST, 0); // 1 off
 	delay_ms(speed);
 	
-	update(2, test_address, 0); // 3 off
-	update(1, test_address, 0); // 2 off
-	update(0, test_address, 0); // 1 off
+	update(0, ADDR_TEST, 1); // 1 on
+	delay_ms(speed);
+	update(1, ADDR_TEST, 1); // 2 on
+	update(0, ADDR_TEST, 0); // 1 off
+	delay_ms(speed);
+	update(0, ADDR_TEST, 1); // 1 on
+	delay_ms(speed);
+	
+	update(2, ADDR_TEST, 0); // 3 off
+	update(1, ADDR_TEST, 0); // 2 off
+	update(0, ADDR_TEST, 0); // 1 off
 	delay_ms(speed);
 }
 

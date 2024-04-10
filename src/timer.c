@@ -11,8 +11,6 @@ void tim3_init(void) {
 	TIM3->PSC = 7200 - 1; // 72MHz / 7200 = 10kHz
 	TIM3->ARR = 0xA000 - 1; // with 10kHz prescaler, generates interrupt every 100ms
 	TIM3->CR1 |= TIM_CR1_OPM; // stop when event fires
-	//TIM3->CR1 &= ~TIM_CR1_DIR; // count up
-	//TIM3->CR1 |= TIM_CR1_URS; // enable as interrupt source
 	TIM3->DIER |= TIM_DIER_UIE; // enable update interrupt
 	NVIC->ISER[0] |= NVIC_ISER_SETENA_29; // enable TIM3 interrupt in NVIC
 	TIM3->SR &= ~TIM_SR_UIF; // clear update interrupt flag
@@ -54,16 +52,5 @@ void delay_ms(uint16_t delay_time_ms)
 	{
 		delay_us (1000); // delay of 1 ms
 	}
-}
-
-void MCO_on(void)
-{
-    RCC->APB2ENR |=  RCC_APB2ENR_IOPAEN | RCC_APB2ENR_AFIOEN;
-	
-		// Configure PA8 as AFIO ( Write 1011b into the configuration and mode bits )
-    GPIOA->CRH |= GPIO_CRH_CNF8_1 | GPIO_CRH_MODE8_1 | GPIO_CRH_MODE8_0 ;
-    GPIOA->CRH &= ~GPIO_CRH_CNF8_0 ;
-
-		RCC->CFGR |= RCC_CFGR_MCO_PLL; // select pll/2 as clock output
 }
 

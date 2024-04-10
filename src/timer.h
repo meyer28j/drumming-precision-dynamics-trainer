@@ -8,10 +8,4 @@ void start_calibration_timer(void);
 void tim2_init(void);
 void delay_us(uint16_t);
 void delay_ms(uint16_t);
-void MCO_on(void);
-
-
-
-
-
 
